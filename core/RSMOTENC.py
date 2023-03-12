@@ -21,6 +21,7 @@ from scipy import stats
 import time
 import math
 from core.distMix import distmix
+import pandas as pd
 
 
 #from kmodes.kprototypes import KPrototypes
@@ -52,7 +53,7 @@ class RSmote:
     "
     """
 
-    def __init__(self, data, cat_idx, ir=1, k=5, random_state=None, method = "ahmad", weigths_boolean = True, nbins=3):
+    def __init__(self, data, cat_vars, ir=1, k=5, random_state=None, method = "ahmad", weigths_boolean = True, nbins=3):
         """
         :param data: array for all data with label in 0th col.
         :param ir: imbalanced ratio of synthetic data.
@@ -61,9 +62,14 @@ class RSmote:
         self.data = data
         self._div_data()
         self.n_train_less, self.n_attrs = self.train_less.shape
-        self.cat_idx = cat_idx
+        self.cat_vars = cat_vars
+        
+        self.cat_idx = []
+        for i in self.cat_vars:
+            self.cat_idx.append(data.columns[1:].get_loc(i)+1)
+        
         #self.num_idx = [x for x in list(range(1,data.shape[1]-1)) if x not in cat_idx]
-        self.num_idx = [x for x in list(range(data.shape[1]-1)) if x not in cat_idx]
+        self.num_idx = [x for x in list(range(data.shape[1]-1)) if x not in self.cat_idx]
         self.IR = ir
         self.k = k
         self.new_index = 0
@@ -317,37 +323,22 @@ class RSmote:
                 break
         self.num += 1
 
-
-class RSmoteKClasses:
-    def __init__(self, ir=1, k=5, random_state=None):
-        self.ir = ir
-        self.k = k
-        self.random_state = random_state
-
     def fit_resample(self, X, y):
-        data = np.hstack((y.reshape((len(y), 1)), X))
-        counter = Counter(y)
 
-        max_class_label, max_class_number = 0, 0
-        for k, v in counter.items():
-            if v > max_class_number:
-                max_class_label, max_class_number = k, v
+        cat_idx = []
+        for i in self.cat_vars:
+            cat_idx.append(X.columns.get_loc(i))
 
-        data_new = np.array([]).reshape((-1, data.shape[1]))
+        data_aux = copy.deepcopy(X)
+        data_aux.insert(0, "anomaly", y)
+        data_aux = data_aux.to_numpy()
+        data_Rsmote = RSmote(data_aux, cat_idx , ir=1, k=5, method = self.method, weigths_boolean = self.weigths_boolean, nbins = self.nbins).over_sampling()
 
-        data_more = data[data[:, 0] == max_class_label, :]
-        for k, v in counter.items():
-            if v == max_class_number:
-                continue
-            data_less = data[data[:, 0] == k, :]
-            data_train = np.vstack((data_more, data_less))
-            r_smote = RSmote(data_train, random_state=self.random_state)
-            data_r_smote = r_smote.over_sampling()
-            if data_new.shape[0] == 0:
-                data_new = np.vstack((data_new, data_r_smote))
-            else:
-                data_new = np.vstack((data_new, data_r_smote[data_r_smote[:, 0] != max_class_label, :]))
+        new_X = pd.DataFrame(data_Rsmote[:,1:], columns = X.columns)
+        new_y = pd.DataFrame(data_Rsmote[:,0])
 
-        X_resampled, y_resampled = data_new[:, 1:], data_new[:, 0]
+        new_X[self.cat_vars] = new_X[self.cat_vars].astype("category")
 
-        return X_resampled, y_resampled
+        #Change new_X and new_y column names, according to X and y, respectively
+        
+        return new_X, new_y
