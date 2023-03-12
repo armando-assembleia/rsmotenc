@@ -1,22 +1,11 @@
-# _*_coding:utf-8 _*_
-# @Time    :2020/8/17
-# @Author  :longhai
-# @FileName: RSMOTE.py
-# @Software: PyCharm
-
+# Adapted from longhai
 
 import random
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from collections import Counter
 from sklearn.cluster import k_means
-#from sklearn.linear_model import LogisticRegression
-#import sklearn.metrics
-from sklearn.utils import _safe_indexing
-#from 多分类相对密度调用版 import *
-#from base_sampler import *
 import copy
-#import gower
 from scipy import stats
 import time
 import math
@@ -24,9 +13,6 @@ from core.distMix import distmix
 import pandas as pd
 
 
-#from kmodes.kprototypes import KPrototypes
-#kproto = KPrototypes(n_clusters=2, verbose=2, max_iter=20)
-#kproto.fit(df_array, categorical=cat_idx)
 
 # Calculate how many majority samples are in the k nearest neighbors of the minority samples
 def number_maj(imbalanced_featured_data, minor_feature_data, minor_label, imbalanced_label_data, method, weigths_boolean = True, nbins=3, idnum = list(range(11,24)), idbin = [], idcat = list(range(1,11))):
