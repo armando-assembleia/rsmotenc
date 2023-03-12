@@ -13,7 +13,6 @@ from core.distMix import distmix
 import pandas as pd
 
 
-
 # Calculate how many majority samples are in the k nearest neighbors of the minority samples
 def number_maj(imbalanced_featured_data, minor_feature_data, minor_label, imbalanced_label_data, method, weigths_boolean = True, nbins=3, idnum = list(range(11,24)), idbin = [], idcat = list(range(1,11))):
     #gower_1 = gower.gower_matrix(imbalanced_featured_data)
@@ -39,23 +38,16 @@ class RSMOTENC:
     "
     """
 
-    def __init__(self, data, cat_vars, ir=1, k=5, random_state=None, method = "ahmad", weigths_boolean = True, nbins=3):
+    def __init__(self, cat_vars, ir=1, k=5, random_state=None, method = "ahmad", weigths_boolean = True, nbins=3):
         """
         :param data: array for all data with label in 0th col.
         :param ir: imbalanced ratio of synthetic data.
         :param k: Number of nearest neighbors.
         """
-        self.data = data
-        self._div_data()
-        self.n_train_less, self.n_attrs = self.train_less.shape
+    
         self.cat_vars = cat_vars
         
-        self.cat_idx = []
-        for i in self.cat_vars:
-            self.cat_idx.append(data.columns[1:].get_loc(i)+1)
-        
         #self.num_idx = [x for x in list(range(1,data.shape[1]-1)) if x not in cat_idx]
-        self.num_idx = [x for x in list(range(data.shape[1]-1)) if x not in self.cat_idx]
         self.IR = ir
         self.k = k
         self.new_index = 0
@@ -69,11 +61,14 @@ class RSMOTENC:
         #print(self.cat_idx)
         #print(self.num_idx)
 
-    def _div_data(self):
+    def _div_data(self, data):
         """
         divide the dataset.
         :return: None
         """
+        
+        self.data = data
+        
         count = Counter(self.data[:, 0])
         a, b = set(count.keys())
         self.tp_less, self.tp_more = (a, b) if count[a] < count[b] else (b, a)
@@ -85,8 +80,20 @@ class RSMOTENC:
         self.train_more = data_more
 
         self.train = np.vstack((self.train_more, self.train_less))
+    
+        self.n_train_less, self.n_attrs = self.train_less.shape
+        
+        self.cat_idx = []
+        for i in self.cat_vars:
+            self.cat_idx.append(self.data.columns[1:].get_loc(i))
+            
+        self.num_idx = [x for x in list(range(self.data.shape[1]-1)) if x not in self.cat_idx]
+        
 
-    def over_sampling(self):
+    def over_sampling(self, data):
+        
+        self._div_data(data)
+        
         if self.k + 1 > self.n_train_less:
             print('Expected n_neighbors <= n_samples,  but n_samples = {}, n_neighbors = {}, '
                   'has changed the n_neighbors to {}'.format(self.n_train_less, self.k + 1, self.n_train_less))
@@ -310,15 +317,12 @@ class RSMOTENC:
         self.num += 1
 
     def fit_resample(self, X, y):
+        
+        self.data = copy.deepcopy(self.X)
+        self.data.insert(0, "anomaly", self.y)
+        self.data = self.data.to_numpy()
 
-        cat_idx = []
-        for i in self.cat_vars:
-            cat_idx.append(X.columns.get_loc(i))
-
-        data_aux = copy.deepcopy(X)
-        data_aux.insert(0, "anomaly", y)
-        data_aux = data_aux.to_numpy()
-        data_Rsmote = RSmote(data_aux, cat_idx , ir=1, k=5, method = self.method, weigths_boolean = self.weigths_boolean, nbins = self.nbins).over_sampling()
+        data_Rsmote = self.over_sampling(self.data)
 
         new_X = pd.DataFrame(data_Rsmote[:,1:], columns = X.columns)
         new_y = pd.DataFrame(data_Rsmote[:,0])
