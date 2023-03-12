@@ -30,7 +30,7 @@ def number_maj(imbalanced_featured_data, minor_feature_data, minor_label, imbala
     return n_maj
 
 
-class RSmote:
+class RSMOTENC:
     """
     class RSMOTE usage is as follows:
     "
