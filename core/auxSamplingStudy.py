@@ -1,7 +1,7 @@
 from re import L
 import pandas as pd
 import numpy as np
-from Sampling_Methods.Balance import BalanceDataset
+from core.Balance import BalanceDataset
 
 def remove_outlier(df: pd.DataFrame, column: str, outlier_assumption: float) -> pd.DataFrame:
     mean = np.mean(df[column])
@@ -159,6 +159,23 @@ def evaluate(x, y, loaded_model, threshold):
     #print(classification_report(y, pred,digits=4))
     return None;
 
+
+def evaluate_table(x, y, loaded_models, threshold, metrics, save=None):
+    
+    results_table = pd.DataFrame(np.zeros((len(loaded_models),len(metrics))))
+    results_table.index = loaded_models.keys()
+    results_table.columns = metrics
+    
+    for loaded_model in loaded_models:
+        threshold = evaluate_best_threshold(x,y, loaded_model, param="f1-score")
+        results = evaluate(x, y, loaded_model, threshold)
+        results = [results[metric] for metric in metrics]
+        results_table.loc[loaded_model] = results
+    
+    if save != None:
+        results_table.to_excel(save + ".xlsx")
+    
+    return results_table
 
 def evaluate_best_threshold(x,y, loaded_model, param="f1-score"):
     x = np.array(x)
