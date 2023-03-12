@@ -1,7 +1,11 @@
 from re import L
-import pandas as pd
+from sklearn.metrics import auc, precision_recall_curve, roc_auc_score, roc_curve
+from sklearn.preprocessing import LabelEncoder
+
+import matplotlib.pyplot as plt
 import numpy as np
-from core.Balance import BalanceDataset
+import pandas as pd
+import pickle
 
 def remove_outlier(df: pd.DataFrame, column: str, outlier_assumption: float) -> pd.DataFrame:
     mean = np.mean(df[column])
@@ -18,9 +22,6 @@ def remove_outlier(df: pd.DataFrame, column: str, outlier_assumption: float) -> 
     return df
 
 # Label encode categorical variables
-
-from sklearn.preprocessing import LabelEncoder
-
 class MultiColumnLabelEncoder:
     def __init__(self,columns = None):
         self.columns = columns # array of column names to encode
@@ -45,9 +46,6 @@ class MultiColumnLabelEncoder:
 
     def fit_transform(self,X,y=None):
         return self.fit(X,y).transform(X)
-
-from sklearn.metrics import classification_report
-
 
 def evaluate_metrics(y_true, y_predict, output = False):
 
@@ -149,7 +147,6 @@ def evaluate_metrics(y_true, y_predict, output = False):
 
     return results
 
-
 def evaluate(x, y, loaded_model, threshold):
     x = np.array(x)
     y = np.ravel(y)
@@ -158,7 +155,6 @@ def evaluate(x, y, loaded_model, threshold):
     #print(pd.crosstab(y, pred, rownames=['Actual'], colnames=['Predicted']))
     #print(classification_report(y, pred,digits=4))
     return results
-
 
 def evaluate_table(x, y, loaded_models, metrics, save=None):
     
@@ -196,11 +192,6 @@ def evaluate_best_threshold(x,y, loaded_model, param="f1-score"):
             best_param = opt_param
             best_threshold = threshold
     return best_threshold
-
-import matplotlib.pyplot as plt
-import pickle
-from sklearn.metrics import roc_curve, auc, precision_recall_curve, f1_score, roc_auc_score
-
 
 ## generate_curves function creates ROC-AUC and PR-AUC curve of the loaded model and compare that wth the random classifier
 def generate_curves(dict_files, X_test, y_test, save=None):   

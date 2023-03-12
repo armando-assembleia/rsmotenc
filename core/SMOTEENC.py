@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 
-class MySMOTENC():
+class SMOTEENC():
     
     def __init__(self, categorical_features):
         self.categorical_features = categorical_features
