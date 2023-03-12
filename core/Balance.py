@@ -4,7 +4,7 @@ from sklearn.metrics import confusion_matrix
 
 import copy
 
-import RSMOTENC
+import core.RSMOTENC as RSMOTENC
 
 class BalanceDataset:
     def __init__(self, cat_vars, method = "ahmad", weigths_boolean = True, nbins=3):

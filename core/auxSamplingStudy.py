@@ -154,23 +154,24 @@ def evaluate(x, y, loaded_model, threshold):
     x = np.array(x)
     y = np.ravel(y)
     pred = (loaded_model.predict_proba(x)[:,1] >= threshold).astype(bool)
-    evaluate_metrics(y, pred, output = True)
+    results = evaluate_metrics(y, pred, output = True)
     #print(pd.crosstab(y, pred, rownames=['Actual'], colnames=['Predicted']))
     #print(classification_report(y, pred,digits=4))
-    return None;
+    return results
 
 
-def evaluate_table(x, y, loaded_models, threshold, metrics, save=None):
+def evaluate_table(x, y, loaded_models, metrics, save=None):
     
     results_table = pd.DataFrame(np.zeros((len(loaded_models),len(metrics))))
     results_table.index = loaded_models.keys()
     results_table.columns = metrics
     
-    for loaded_model in loaded_models:
-        threshold = evaluate_best_threshold(x,y, loaded_model, param="f1-score")
-        results = evaluate(x, y, loaded_model, threshold)
+    for model_name, model in loaded_models.items():
+        threshold = evaluate_best_threshold(x,y, model, param="f1ScoreIR")
+        results = evaluate(x, y, model, threshold)
+        print(results)
         results = [results[metric] for metric in metrics]
-        results_table.loc[loaded_model] = results
+        results_table.loc[model_name] = results
     
     if save != None:
         results_table.to_excel(save + ".xlsx")
@@ -454,39 +455,6 @@ class MySMOTENC():
         else:
             X_resampled = X_resampled[:, indices_reordered]
         return X_resampled, y_resampled
-
-from pyod.models.lof import LOF
-import aux
- 
-def test_distances(distance_matrices, y, index, neigbs, outlier_prevelance, metric, save=None):
-    for name_matrix, distance_matrix in distance_matrices.items():
-
-        metric_list = []
-
-        for i in neigbs:
-            list_methods = [LOF(metric="precomputed", n_neighbors=i)]
-            list_names = ["LOF"]
-
-            data = aux.apply_methods(distance_matrix, list_methods, list_names, index, outlier_prevelance)
-            data = aux.join_dfs([data])
-
-            metric_list.append(aux.evaluate(y, data['LOF'])[metric])
-
-        print(aux.evaluate(y, data['LOF'])[metric])
-        
-        plt.plot(neigbs, metric_list, label = name_matrix)
-
-    plt.title('LOF(k)')
-    plt.xlabel('k')
-    plt.ylabel(metric)
-    plt.legend()
-
-    if save is not None:
-        plt.savefig(save, bbox_inches='tight')
-
-    plt.show()
-
-    return None
 
 
 def calculate_nbins(data, cat_cols = None, method = None):

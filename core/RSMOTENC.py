@@ -20,7 +20,7 @@ import copy
 from scipy import stats
 import time
 import math
-from Mixed_Distances.distMix import distmix
+from core.distMix import distmix
 
 
 #from kmodes.kprototypes import KPrototypes
