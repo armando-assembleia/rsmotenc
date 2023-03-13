@@ -63,13 +63,18 @@ class RSMOTENC:
         #print(self.cat_idx)
         #print(self.num_idx)
 
-    def _div_data(self, data):
+    def _div_data(self, X, y):
         """
         divide the dataset.
         :return: None
         """
         
-        self.data = data
+        self.X = X
+        self.y = y
+        
+        self.data = copy.deepcopy(self.X)
+        self.data.insert(0, "anomaly", self.y)
+        self.data = self.data.to_numpy()
         
         count = Counter(self.data[:, 0])
         a, b = set(count.keys())
@@ -87,14 +92,14 @@ class RSMOTENC:
         
         self.cat_idx = []
         for i in self.cat_vars:
-            self.cat_idx.append(self.data.columns[1:].get_loc(i))
+            self.cat_idx.append(self.X.columns[1:].get_loc(i))
             
-        self.num_idx = [x for x in list(range(self.data.shape[1]-1)) if x not in self.cat_idx]
+        self.num_idx = [x for x in list(range(self.X.shape[1]-1)) if x not in self.cat_idx]
         
 
-    def over_sampling(self, data):
+    def over_sampling(self, X, y):
         
-        self._div_data(data)
+        self._div_data(X, y)
         
         if self.k + 1 > self.n_train_less:
             print('Expected n_neighbors <= n_samples,  but n_samples = {}, n_neighbors = {}, '
@@ -319,14 +324,10 @@ class RSMOTENC:
         self.num += 1
 
     def fit_resample(self, X, y):
-        
-        self.data = copy.deepcopy(self.X)
-        self.data.insert(0, "anomaly", self.y)
-        self.data = self.data.to_numpy()
 
-        data_Rsmote = self.over_sampling(self.data)
+        data_Rsmote = self.over_sampling(X,y)
 
-        new_X = pd.DataFrame(data_Rsmote[:,1:], columns = X.columns)
+        new_X = pd.DataFrame(data_Rsmote[:,1:], columns = self.X.columns)
         new_y = pd.DataFrame(data_Rsmote[:,0])
 
         new_X[self.cat_vars] = new_X[self.cat_vars].astype("category")
