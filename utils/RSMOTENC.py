@@ -1,15 +1,17 @@
 # Adapted from longhai
 
-import random
-from sklearn.neighbors import NearestNeighbors
-import numpy as np
+
 from collections import Counter
-from sklearn.cluster import k_means
-import copy
 from scipy import stats
+from sklearn.cluster import k_means
+from sklearn.neighbors import NearestNeighbors
+from utils.distMix import distmix
+
+import copy
+import random
+import numpy as np
 import time
 import math
-from core.distMix import distmix
 import pandas as pd
 
 

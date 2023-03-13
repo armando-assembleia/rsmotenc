@@ -404,9 +404,6 @@ def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0
 
 
 
-print(f'{__name__}')
-
-
 '''
 from import_datasets import df_domain_ordinal
 
