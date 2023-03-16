@@ -55,7 +55,7 @@ class BalanceModel:
             nbins_list = []
             for cat in cat_vars:
                 nbins_list.append(len(self.X[cat].unique()))
-            print(nbins_list)
+            #print(nbins_list)
             return int(np.mean(nbins_list))
         
         elif method == "FD":
@@ -64,7 +64,7 @@ class BalanceModel:
                 iqr = np.quantile(self.X[cat], 0.75) - np.quantile(self.X[cat], 0.25)
                 h = 2 * iqr * n**(-1/3)
                 nbins_list.append( ( np.max(self.X[cat]) - np.min(self.X[cat]) ) / h )
-            print(nbins_list)
+            #print(nbins_list)
             return int(np.median(nbins_list))
         
     def _balance_tech(self, tech_name):
@@ -88,22 +88,28 @@ class BalanceModel:
                                     RandomForestClassifier(random_state=42))
         # check model performance on different values of hyper-parameters.
         grid_search = GridSearchCV(samp_pipeline, param_grid=param_grid, cv=kfold, scoring='balanced_accuracy',
-                                return_train_score=True, n_jobs = 1, verbose = 2)
+                                return_train_score=True, n_jobs = 1, verbose = 0)
         grid_search.fit(self.X, self.y)
         best_grid = grid_search.best_estimator_
         pickle.dump(best_grid, open(filename, 'wb'))
         
-        print(f'{tech}: Sucessfully saved in {filename}' )
+        #print(f'{tech}: Sucessfully saved in {filename}' )
     
     def generate_models(self, techs, param_grid, kfold, path) -> None:
         
         for tech in techs:
-            self._generate_model(tech, param_grid, kfold, path)
-            
+            try:
+                self._generate_model(tech, param_grid, kfold, path)
+                #print(tech, u'\u2713', 'Sucessfully saved')
+                print(tech, '✅', '\033[92m' + 'Sucessfully saved'  + '\033[0m')
+            except ValueError:
+                print('RSMOTENC', '❌', '\033[91m' + 'FAILED'  + '\033[0m')      
             
 sys.path.append(f'analysis/data/{DATASET_NAME}')
 
 from config import DATA, MODELS, idcat, idnum, param_grid, kfold, techs
+
+techs = ["RSMOTENC_ahmadA"]
 
 X_train = pd.read_csv(DATA / f"{DATASET_NAME}_X_train.csv")
 y_train = pd.read_csv(DATA / f"{DATASET_NAME}_y_train.csv")

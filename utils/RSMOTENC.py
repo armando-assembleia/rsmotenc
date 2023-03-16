@@ -95,8 +95,8 @@ class RSMOTENC:
             
         self.num_idx = [x for x in list(range(self.X.shape[1]-1)) if x not in self.cat_idx]
         
-        print(self.cat_idx)
-        print(self.num_idx)
+        #print(self.cat_idx)
+        #print(self.num_idx)
         
 
     def over_sampling(self, X, y):
@@ -154,8 +154,8 @@ class RSMOTENC:
         #print("NN1",time.time() - chk)
 
         #chk = time.time()
-        print(len(gower_less))
-        print(gower_less.shape)
+        #print(len(gower_less))
+        #print(gower_less.shape)
         if len(gower_less) < (self.k + 1):
             n_neigh = math.ceil(len(gower_less)/2) + 1
         else:

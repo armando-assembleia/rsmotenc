@@ -256,7 +256,7 @@ def calculate_nbins(data, cat_cols = None, method = None):
         nbins_list = []
         for cat in cat_vars:
             nbins_list.append(len(data[cat].unique()))
-        print(nbins_list)
+        #print(nbins_list)
         return int(np.mean(nbins_list))
     elif method == "FD":
         nbins_list = []
@@ -264,5 +264,5 @@ def calculate_nbins(data, cat_cols = None, method = None):
             iqr = np.quantile(data[cat], 0.75) - np.quantile(data[cat], 0.25)
             h = 2 * iqr * n**(-1/3)
             nbins_list.append( ( np.max(data[cat]) - np.min(data[cat]) ) / h )
-        print(nbins_list)
+        #print(nbins_list)
         return int(np.median(nbins_list))
