@@ -7,9 +7,9 @@ from sklearn.preprocessing import KBinsDiscretizer
 import time
 import copy
 #from threading import Thread
-from multiprocessing import Process
+#from multiprocessing import Process
 
-THREADS = 10
+#THREADS = 10
 
 def weigths_num_var(data, nbins=0):
     #suppose it is a matrix
@@ -103,7 +103,7 @@ def cooccur(data1, data2=None):
         #print((rn1,rn2,col))
         
         if initial_data2 is None:
-            start = time.time()
+            #start = time.time()
             for i in range(rn1):
                 distsum = np.zeros((rn2-i,col))
                 data_i = data1[i, :col]
@@ -113,18 +113,27 @@ def cooccur(data1, data2=None):
                     distsum[j-i] = [newdata_aux[k][data_j[k]] for k in range(col)]
                 distmat[i:,i] = distmat[i,i:] = np.sum(np.array(distsum)**2, axis=1)
                 #print(i)
-            print("Same DataFrame")
+            #print("Same DataFrame")
         else:
-            start = time.time()
-            distmat = [None] * rn1
-            threads = [Process(target = create_distance_row, args=(i, distmat, data1, data2, rn2, col, newdata)) for i in range(rn1)]
-            [thread.start() for thread in threads] 
-            [thread.join() for thread in threads]    
-            # pool = multiprocessing.Pool(processes=THREADS)
-            # distmat = pool.map(create_distance_row(data1, data2, rn2, col, newdata), range(rn1))
+            #start = time.time()
             
-            print("Different DataFrame")
-            print(time.time()-start)
+            # distmat = [None] * rn1
+            # threads = [Process(target = create_distance_row, args=(i, distmat, data1, data2, rn2, col, newdata)) for i in range(rn1)]
+            # [thread.start() for thread in threads] 
+            # [thread.join() for thread in threads]
+            
+            for i in range(rn1):
+                distsum = np.zeros((rn2,col))
+                data_i = data1[i, :col]
+                newdata_aux = [newdata[k][data_i[k],:] for k in range(col)]
+                for j in range(rn2):
+                    data_j = data2[j, :col]
+                    distsum[j] = [newdata_aux[k][data_j[k]] for k in range(col)]
+                distmat[i] = np.sum(np.array(distsum)**2, axis=1)
+                #print(i)
+            
+            #print("Different DataFrame")
+        #print("Coocur time: ", time.time()-start)
                  
     else:
         distmat = cdist(data1, data2, 'hamming')
@@ -179,12 +188,12 @@ def mahalanobis_matrix2(data1, data2=None, cov_method="standard"):
         cov = MinCovDet(random_state=0).fit(data1_2)
         cov_inv = np.linalg.inv(cov.covariance_)
 
-    print("Inv cov time: ", time.time()-start)
+    #print("Inv cov time: ", time.time()-start)
 
     start = time.time()
     for i in range(dim1):
         distance_matrix[i,:] = mahalanobis_array(data1_2, data1_2[i,:],cov_inv)
-    print("Mahalanobis arrays time: ", time.time()-start)
+    #print("Mahalanobis arrays time: ", time.time()-start)
 
     if data2 is not None:
         distance_matrix = distance_matrix[:,dim1:(dim1+dim2)]
@@ -218,9 +227,9 @@ def _check_dataset(data, idnum, idbin, idcat):
     from sklearn.preprocessing import OrdinalEncoder
     encoder = OrdinalEncoder()
     #IMPORTANTE ALTERAR
-    print(idnum)
-    print(idbin)
-    print(idcat)
+    #print(idnum)
+    #print(idbin)
+    #print(idcat)
     data[:, idbin + idcat] = encoder.fit_transform(data[:, idbin + idcat])
 
     x_num = data[:,idnum]
@@ -292,7 +301,7 @@ def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0
         ### Ahmad Distance - Multiplying the weigths of the numerical variables
         if (weigths_boolean) & (x1_2.shape[1]>1):
             weigths = weigths_num_var(x1_2, nbins)
-            print("Weigths calculated")
+            #print("Weigths calculated")
             x1 = x1 * weigths
             x2 = x2 * weigths
             #print("Weigths multiplied")
@@ -314,11 +323,12 @@ def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0
         elif method == "ahmad_mahalanobis":
             if initial_data2 is None:
                 dist_numeric = mahalanobis_matrix2(x1, None, cov_method="standard")
-                print(np.any(np.isnan(dist_numeric)))
-                print(np.all(np.isfinite(dist_numeric)))
-                print(dist_numeric)
+                #print(np.any(np.isnan(dist_numeric)))
+                #print(np.all(np.isfinite(dist_numeric)))
+                #print(dist_numeric)
             else:
                 dist_numeric = mahalanobis_matrix2(x1, x2, cov_method="standard")
+        print(dist_numeric)
         print("Distance matrix calculated") 
 
     ######################
@@ -375,7 +385,7 @@ def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0
                 dist_cat = cdist(x1, x2, 'hamming')
                 if method == "huang":
                     dist_cat = dist_cat * cat
-
+    print(dist_cat)
     print("Cat finished")
     #####################################
     # LAST STEP: Sum different components
@@ -415,7 +425,7 @@ start = time.time()
 c = distmix(df_domain_ordinal.to_numpy(), data2 = df_domain_ordinal.to_numpy(),  method = "ahmad_mahalanobis", weigths_boolean = True, nbins=3, idnum = list(range(10,24)), idbin = [], idcat = list(range(10)) )
 print(time.time()-start) 147 295
 
-c = distmix(a, method = "ahmad", weigths_boolean = True, nbins=3, idnum = list(range(3)), idbin = [], idcat = [3,4] )
+c = distmix(a, a, method = "ahmad", weigths_boolean = True, nbins=3, idnum = [0,1,2], idbin = [], idcat = [3,4] )
 
 
 np.cov(df_domain_ordinal.to_numpy()[list(range(11,24))])
