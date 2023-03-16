@@ -260,8 +260,8 @@ def _check_dataset(data, idnum, idbin, idcat):
 
     return data, x_num, x_bin, x_cat, x_bin_cat
 
-def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0, idnum = [], idbin = [], idcat = []):
-
+def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0, idnum = [], idbin = [], idcat = [], verbose = False):
+        
     data1, x_num1, x_bin1, x_cat1, x_bin_cat1 = _check_dataset(data1, idnum, idbin, idcat)
     rows_data1 = len(data1)
     initial_data2 = copy.copy(data2)
@@ -285,7 +285,7 @@ def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0
     ########################
     # 1. Numerical Component
     #########################
-    print("---------------------------")
+    print("---------------------------") if verbose else None
 
     if len(idnum) == 0:
         num = 0
@@ -328,13 +328,13 @@ def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0
                 #print(dist_numeric)
             else:
                 dist_numeric = mahalanobis_matrix2(x1, x2, cov_method="standard")
-        print(dist_numeric)
-        print("Distance matrix calculated") 
+        #print(dist_numeric)
+        print("Distance matrix calculated") if verbose else None
 
     ######################
     # 2. Binary Component
     ######################
-    print("---------------------------")
+    print("---------------------------") if verbose else None
 
     if len(idbin) == 0:
         bin = 0
@@ -350,23 +350,23 @@ def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0
         if method == "huang" or method == "harikumar":
             dist_binary = dist_binary * bin
 
-    print("Binary finished")
+    print("Binary finished") if verbose else None
 
     ##########################
     # 3. Categorical Component
     ##########################
-    print("---------------------------")
+    print("---------------------------") if verbose else None
 
     if method == "ahmad" or method == "ahmad_mahalanobis" or method == "ahmad_l1":
         bin = len(idbin)
         cat = len(idcat)
-        print("Calculating coocccur...")
+        print("Calculating coocccur...") if verbose else None
         start = time.time()
         if initial_data2 is None:
             dist_cat = cooccur(x_bin_cat1, None)
         else:
             dist_cat = cooccur(x_bin_cat1, x_bin_cat2)
-        print("Cooccur time: ", time.time()-start)
+        print("Cooccur time: ", time.time()-start) if verbose else None
     else: 
         if len(idcat) == 0:
             cat = 0
@@ -385,12 +385,12 @@ def distmix(data1, data2=None, method = "gower", weigths_boolean = True, nbins=0
                 dist_cat = cdist(x1, x2, 'hamming')
                 if method == "huang":
                     dist_cat = dist_cat * cat
-    print(dist_cat)
-    print("Cat finished")
+    #print(dist_cat)
+    print("Cat finished") if verbose else None
     #####################################
     # LAST STEP: Sum different components
     #####################################
-    print("---------------------------")
+    print("---------------------------") if verbose else None
 
     nvar = num + bin + cat
 
