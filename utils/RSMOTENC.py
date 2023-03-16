@@ -1,6 +1,5 @@
 # Adapted from longhai
 
-
 from collections import Counter
 from scipy import stats
 from sklearn.cluster import k_means
@@ -21,10 +20,10 @@ def number_maj(imbalanced_featured_data, minor_feature_data, minor_label, imbala
     #gower_2 = gower.gower_matrix(minor_feature_data, imbalanced_featured_data)
     gower_1 = distmix(imbalanced_featured_data, method = method, weigths_boolean = weigths_boolean, nbins=nbins, idnum = idnum, idbin = [], idcat = idcat )
     gower_2 = distmix(minor_feature_data, imbalanced_featured_data, method = method, weigths_boolean = weigths_boolean, nbins=nbins, idnum = idnum, idbin = [], idcat = idcat )
-    print(imbalanced_featured_data.shape)
-    print(minor_feature_data.shape)
-    print(gower_1)
-    print(gower_2)
+    #print(imbalanced_featured_data.shape)
+    #print(minor_feature_data.shape)
+    #print(gower_1)
+    #print(gower_2)
     nnm_x = NearestNeighbors(n_neighbors=6, metric="precomputed").fit(gower_1).kneighbors(gower_2,return_distance=False)[:, 1:]
     nn_label = (imbalanced_label_data[nnm_x] != minor_label).astype(int)
     n_maj = np.sum(nn_label, axis=1)
@@ -92,9 +91,12 @@ class RSMOTENC:
         
         self.cat_idx = []
         for i in self.cat_vars:
-            self.cat_idx.append(self.X.columns[1:].get_loc(i))
+            self.cat_idx.append(self.X.columns.get_loc(i))
             
         self.num_idx = [x for x in list(range(self.X.shape[1]-1)) if x not in self.cat_idx]
+        
+        print(self.cat_idx)
+        print(self.num_idx)
         
 
     def over_sampling(self, X, y):
@@ -109,7 +111,7 @@ class RSMOTENC:
         num_maj_filter = []
         length_less = len(self.train_less)
         num_maj = number_maj(self.train[:, 1:], self.train_less[:, 1:], self.tp_less, self.train[:, 0], self.method, self.weigths_boolean, self.nbins, self.num_idx, [], self.cat_idx)
-        print(num_maj)
+        #print(num_maj)
         for m in range(len(num_maj)):
             if num_maj[m] < self.k:
                 data_less_filter.append(self.train_less[m])
@@ -125,33 +127,33 @@ class RSMOTENC:
                 else:
                     num_maj_filter.append(num_maj[m]-1)
 
-        print(self.train_less)
-        print(self.train_less.shape)
+        #print(self.train_less)
+        #print(self.train_less.shape)
 
         chk = time.time()
         #gower_more = gower.gower_matrix(self.train_more[:, 1:])
         gower_more = distmix(self.train_more[:,1:], method = self.method, weigths_boolean = self.weigths_boolean, nbins = self.nbins, idnum = self.num_idx, idbin = [], idcat = self.cat_idx)
-        print("Gower1", time.time() - chk)
+        #print("Gower1", time.time() - chk)
 
         chk = time.time()
         #gower_less = gower.gower_matrix(self.train_less[:, 1:])
         gower_less = distmix(self.train_less[:,1:], method = self.method, weigths_boolean = self.weigths_boolean, nbins = self.nbins, idnum = self.num_idx, idbin = [], idcat = self.cat_idx )
-        print("Gower2",time.time() - chk)
+        #print("Gower2",time.time() - chk)
 
         chk = time.time()
         #gower_less_more = gower.gower_matrix(self.train_less[:, 1:], self.train_more[:, 1:])
         gower_less_more = distmix(self.train_less[:, 1:], self.train_more[:, 1:], method = self.method, weigths_boolean = self.weigths_boolean, nbins = self.nbins, idnum = self.num_idx, idbin = [], idcat = self.cat_idx )
-        print("Gower3",time.time() - chk)
+        #print("Gower3",time.time() - chk)
 
-        chk = time.time()
+        #chk = time.time()
         if len(gower_less_more) < (self.k + 1):
             n_neigh = math.ceil(len(gower_less_more)/2) + 1
         else:
             n_neigh = self.k + 1
         distance_more, nn_array_more = NearestNeighbors(n_neighbors=n_neigh, metric="precomputed").fit(gower_more).kneighbors(gower_less_more, return_distance=True)
-        print("NN1",time.time() - chk)
+        #print("NN1",time.time() - chk)
 
-        chk = time.time()
+        #chk = time.time()
         print(len(gower_less))
         print(gower_less.shape)
         if len(gower_less) < (self.k + 1):
@@ -159,7 +161,7 @@ class RSMOTENC:
         else:
             n_neigh = self.k + 1
         distance_less, nn_array = NearestNeighbors(n_neighbors=n_neigh, metric="precomputed").fit(gower_less).kneighbors(gower_less, return_distance=True)
-        print("NN2",time.time() - chk)
+        #print("NN2",time.time() - chk)
 
         # distance = 0 if n_neigh=1 ERROR!!!
         distance_less = distance_less.sum(axis=1)
@@ -222,7 +224,7 @@ class RSMOTENC:
         diff = len(self.train_more) - length_less  # the number of samples need to synthesize
         totol_less = len(self.train_less)
 
-        print("Flag ", flag)
+        #print("Flag ", flag)
 
         for i in range(flag):
             if i == 0:  # big cluster
@@ -248,12 +250,12 @@ class RSMOTENC:
                 else:
                     number_synthetic = diff - len_big
 
-            print(ratio)
+            #print(ratio)
             # Calculate how many points should be inserted for each sample
             N = list(map(lambda x: int((x / ratio[i]) * number_synthetic), wight))
-            print("N ", N)
-            print("N Sum ", np.sum(N))
-            print("number_synthetic ", number_synthetic)
+            #print("N ", N)
+            #print("N Sum ", np.sum(N))
+            #print("number_synthetic ", number_synthetic)
             self.reminder = number_synthetic - sum(N)
             self.num = 0
 
@@ -267,12 +269,12 @@ class RSMOTENC:
             nn_array = neighbors.kneighbors(gower_less, return_distance=False)
 
             self.synthetic = np.zeros((number_synthetic, self.n_attrs - 1))
-            print("len: ", self.train_less.shape[0])
+            #print("len: ", self.train_less.shape[0])
             for p in range(self.train_less.shape[0]):
                 self._populate(p, nn_array[p][1:], number_synthetic, N, maj_num_ab)
 
-            print("self.num: ", self.num)
-            print("self.reminder: ", self.reminder)
+            #print("self.num: ", self.num)
+            #print("self.reminder: ", self.reminder)
 
             label_synthetic = np.array([self.tp_less] * number_synthetic).reshape((number_synthetic, 1))
             np.random.seed(self.random_state)
