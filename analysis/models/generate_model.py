@@ -1,4 +1,4 @@
-DATASET_NAME = "bank"
+DATASET_NAME = "car"
 
 from imblearn.over_sampling import SMOTENC
 from imblearn.pipeline import make_pipeline
@@ -103,13 +103,10 @@ class BalanceModel:
                 #print(tech, u'\u2713', 'Sucessfully saved')
                 print(tech, '✅', '\033[92m' + 'Sucessfully saved'  + '\033[0m')
             except ValueError:
-                print('RSMOTENC', '❌', '\033[91m' + 'FAILED'  + '\033[0m')      
-            
+                print(tech, '❌', '\033[91m' + 'FAILED'  + '\033[0m')      
+
 sys.path.append(f'analysis/data/{DATASET_NAME}')
-
 from config import DATA, MODELS, idcat, idnum, param_grid, kfold, techs
-
-techs = ["RSMOTENC_ahmadA"]
 
 X_train = pd.read_csv(DATA / f"{DATASET_NAME}_X_train.csv")
 y_train = pd.read_csv(DATA / f"{DATASET_NAME}_y_train.csv")
