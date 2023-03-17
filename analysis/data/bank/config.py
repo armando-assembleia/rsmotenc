@@ -6,7 +6,9 @@ from sklearn.model_selection import StratifiedKFold
 ### Paths
 ###################
 #ANALYSIS_ROOT = Path(os.path.normpath(os.getcwd() + os.sep + os.pardir + os.sep + os.pardir))
-ANALYSIS_ROOT = Path(Path(os.getcwd()) / 'analysis')
+#ANALYSIS_ROOT = Path(Path(os.getcwd()) / 'analysis')
+CUR_PATH = Path(__file__).parent.resolve()
+ANALYSIS_ROOT = CUR_PATH.parents[1]
 DATA = Path(ANALYSIS_ROOT / 'data' / 'bank')
 MODELS = Path(ANALYSIS_ROOT / 'models' / 'bank')
 REPORTS = Path(ANALYSIS_ROOT / 'reports')
