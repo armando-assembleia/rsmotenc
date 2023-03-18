@@ -9,8 +9,8 @@ from sklearn.model_selection import StratifiedKFold
 #ANALYSIS_ROOT = Path(Path(os.getcwd()) / 'analysis')
 CUR_PATH = Path(__file__).parent.resolve()
 ANALYSIS_ROOT = CUR_PATH.parents[1]
-DATA = Path(ANALYSIS_ROOT / 'data' / 'bank')
-MODELS = Path(ANALYSIS_ROOT / 'models' / 'bank')
+DATA = Path(ANALYSIS_ROOT / 'data' / 'car')
+MODELS = Path(ANALYSIS_ROOT / 'models' / 'car')
 REPORTS = Path(ANALYSIS_ROOT / 'reports')
 
 
@@ -19,9 +19,9 @@ REPORTS = Path(ANALYSIS_ROOT / 'reports')
 ####################
 
 #Index of the continuous variables
-idnum = [0,10,12,13,14]
+idnum = []
 #Index of the categorical variables
-idcat = [1,2,3,4,5,6,7,8,9,11,15,16]
+idcat = [0,1,2,3,4,5]
 #Index of the binary variables
 idbin = []
 
@@ -34,16 +34,23 @@ idbin = []
 kfold = StratifiedKFold(n_splits=5, random_state=42, shuffle=True)
 
 #randomforest model - hyperparameter tuning using grid search
-param_grid = {'max_depth': [10],
-              'max_features': [5, 10],
-              'min_samples_leaf': [3, 5],
-              'min_samples_split': [2, 4],
+# param_grid = {'max_depth': [2, 3, 4],
+#               'max_features': [2, 3, 4],
+#               'min_samples_leaf': [2, 3],
+#               'min_samples_split': [3, 4],
+#               'n_estimators': [500]
+# }
+
+param_grid = {'max_depth': [2, 4],
+              'max_features': [2, 4],
+              'min_samples_leaf': [2, 3],
+              'min_samples_split': [3, 4],
               'n_estimators': [500]
-}# Create a base model
+}
 param_grid = {'randomforestclassifier__' + key: param_grid[key] for key in param_grid}
 
-techs = ["SMOTENC",
-         "SMOTEENC",
+
+techs = ["SMOTEENC",
          "RSMOTENC_gower",
          "RSMOTENC_huang",
          "RSMOTENC_ahmadA",
