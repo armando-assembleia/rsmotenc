@@ -1,4 +1,4 @@
-DATASET_NAME = "car"
+DATASET_NAME = "ccard"
 
 from imblearn.over_sampling import SMOTENC
 from imblearn.pipeline import make_pipeline
@@ -107,6 +107,8 @@ class BalanceModel:
 
 sys.path.append(f'analysis/data/{DATASET_NAME}')
 from config import DATA, MODELS, idcat, idnum, param_grid, kfold, techs
+sys.path.remove(f'analysis/data/{DATASET_NAME}')
+
 
 X_train = pd.read_csv(DATA / f"{DATASET_NAME}_X_train.csv")
 y_train = pd.read_csv(DATA / f"{DATASET_NAME}_y_train.csv")
