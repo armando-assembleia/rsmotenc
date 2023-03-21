@@ -51,7 +51,7 @@ param_grid = {'randomforestclassifier__' + key: param_grid[key] for key in param
 
 
 techs = ["SMOTENC",
-         "SMOTEENC"
+         "SMOTEENC",
          "RSMOTENC_gower",
          "RSMOTENC_huang",
          "RSMOTENC_ahmadA",
