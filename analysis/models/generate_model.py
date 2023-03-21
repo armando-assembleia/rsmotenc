@@ -1,4 +1,4 @@
-DATASET_NAME = "ccard"
+DATASET_NAME = "rain"
 
 from imblearn.over_sampling import SMOTENC
 from imblearn.pipeline import make_pipeline
@@ -13,6 +13,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 import sys
+#sys.path.append("../..")
 
 from utils.RSMOTENC import RSMOTENC
 from utils.SMOTEENC import SMOTEENC
@@ -78,6 +79,8 @@ class BalanceModel:
                             method = dict_RSMOTENC["method"],
                             weigths_boolean = dict_RSMOTENC["weigths_boolean"],
                             nbins = dict_RSMOTENC["nbins"])
+        else:
+            print(f'{tech_name} is not a valid balancing techinique name')
         return tech
     
     
