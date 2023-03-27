@@ -52,3 +52,14 @@ techs = ["SMOTENC",
          "RSMOTENC_ahmadMahFD",
          "RSMOTENC_ahmadL1A",
          "RSMOTENC_ahmadL1FD",]
+
+metrics = ['Accuracy',
+           'Precision0',
+           'Sensitivity0',
+           'Precision1',
+           'Sensitivity1',
+           'Specificity',
+           'f1Score0',
+           'f1Score1',
+           'f1ScoreIR',
+           'f1ScoreRecallIR']
